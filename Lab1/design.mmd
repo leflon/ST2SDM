@@ -1,0 +1,170 @@
+classDiagram
+
+    class Role{
+        <<enumeration>>
+        Student
+        Teacher
+        External
+    }
+
+    class ReservationStatus{
+        <<enumeration>>
+        Waiting
+        Notified
+        Claimed
+        Expired
+        Cancelled
+    }
+
+    class Book {
+        <<abstract>>
+        #id: String
+        #isbn: String
+        #title: String
+        #publicationYear: Date
+        #language: String
+        #category: String
+        #value: float
+        #restrictedToRoles: Role[]
+        #authors: Author[]
+        #notifiedSubscribers: Subscriber[]
+        #reservations: Reservation[]
+        +subscribeToAvailabilityNotifications(subscriber: Subscriber)
+        +unsubscribeFromAvailabilityNotifications(subscriber: Subscriber)
+        +addReservation(subscriber: Subscriber, now: Date) Reservation
+        +hasWaitingReservations() bool
+        +isReservedBy(subscriber: Subscriber) bool
+        +notifyNextReservation(now: Date) Reservation
+        +expireOverdueReservations(now: Date)
+        abstract +isAvailable() bool
+    }
+
+    class Author {
+        -id: String
+        -name: String
+        -birthDate: Date
+        -country: String
+    }
+    Book "1..*" o-- "1..*" Author
+    Book "0..*" --> "0..*" Subscriber : Notifies
+
+    class Reservation {
+        -id: String
+        -createdAt: Date
+        -notifiedAt: Date?
+        -expiresAt: Date?
+        -status: ReservationStatus
+        -requestedBy: Subscriber
+        -forBook: Book
+        +notify(now: Date)
+        +claim(now: Date) bool
+        +expire(now: Date) bool
+        +cancel()
+    }
+    Reservation "0..*" --> "1" Subscriber : requestedBy
+    Reservation "0..*" --> "1" Book : forBook
+
+    class PhysicalBook {
+        -totalCopies: int
+        -availableCopies: int
+        +isAvailable() bool
+    }
+    Book <|-- PhysicalBook
+
+    class DigitalBook {
+        -maxConcurrentLicenses: int
+        -activeLicenses: int
+        +isAvailable() bool
+    }
+    Book <|-- DigitalBook
+
+    class Collection {
+        -id: String
+        -name: String
+        -books: Book[]
+        +addBook(bookId: String)
+        +removeBook(bookId: String)
+    }
+    Collection "0..*" --> "1..*" Book : Features
+
+    class Subscriber {
+        -id: String
+        -name: String
+        -email: String
+        -role: Role
+        -isSuspended: bool
+        -lateReturnsCount: int
+        -borrowingConstraints: BorrowingConstraints
+        -contactInformation: ContactInformation
+        +notifyAvailability(book: Book)
+        +canBorrow(book: Book) bool
+        +borrow(book: Book, now: Date, rules: PenaltyRules) Borrowing
+        +returnBook(borrowing: Borrowing, now: Date, rules: PenaltyRules) float
+        +reserve(book: Book, now: Date) Reservation
+        +suspend()
+        +unsuspend()
+    }
+
+    class ContactInformation {
+        -phoneNumber: String
+        -streetName: String
+        -streetNumber: String
+        -zipCode: int
+        -city: String
+        -country: String
+    }
+
+    class BorrowingConstraints {
+        -physicalBooksLimit: int
+        -digitalBooksLimit: int
+    }
+
+    class Borrowing {
+        -id: String
+        -startDate: Date
+        -expectedReturnDate: Date
+        -returnedAt: Date?
+        -renewalCount: int
+        -book: Book
+        -subscriber: Subscriber
+        +returnBook(now: Date)
+        +canRenew(hasWaitingReservations: bool) bool
+        +renew(extraDays: int) bool
+        +computePenalty(rules: PenaltyRules, bookValue: float) float
+    }
+    Borrowing "0..*" o-- "1" Book : Includes
+    Borrowing "0..*" o-- "1" Subscriber : Makes
+    Borrowing ..> PenaltyRules
+
+    Subscriber *-- BorrowingConstraints
+    Subscriber *-- ContactInformation
+
+    class LibraryManager {
+        -books: Map~String, Book~
+        -subscribers: Map~String, Subscriber~
+        -collections: Map~String, Collection~
+        +addBook(book: Book)
+        +removeBook(bookId: String)
+        +updateBook(bookId: String, updatedBook: Book)
+        +findBook(bookId: String) Book
+        +addSubscriber(subscriber: Subscriber)
+        +removeSubscriber(subscriberId: String)
+        +updateSubscriber(subscriberId: String, updatedSubscriber: Subscriber)
+        +findSubscriber(subscriberId: String) Subscriber
+        +addCollection(name: String)
+        +removeCollection(id: String)
+    }
+
+    class PenaltyRules {
+        -borrowingDurationPerRoleInDays: Map~Role, int~
+        -dailyLateFeePerRole: Map~Role, float~
+        -penaltyLimit: float
+        -lateReturnsSuspensionThreshold: int
+    }
+
+    note for PenaltyRules "penaltyLimit is a pro-rata on the book's value"
+    note for LibraryManager "Storage + lookup only. No borrow/return/reserve logic."
+
+    LibraryManager "1" --> "0..*" Book : Manages
+    LibraryManager "1" --> "0..*" Subscriber : Manages
+    LibraryManager "1" --> "0..*" Collection : Manages
