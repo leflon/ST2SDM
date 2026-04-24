@@ -1,4 +1,4 @@
-public class BorrowingManager {
+public class BorrowingManager implements IBorrowingManager {
 	private List<Borrowing> borrowings = new ArrayList<>();
     private List<Reservation> reservations = new ArrayList<>();
 

@@ -1,11 +1,14 @@
-import java.util.*;
- 
 public class LibraryManager {
    private static LibraryManager instance;
  
    private List<Book> books = new ArrayList<>();
+   private IBookRepository bookRepository;
+   private IBorrowingManager borrowingManager;
  
-   private LibraryManager() {}
+   private LibraryManager(IBookRepository bookRepository, IBorrowingManager borrowingManager) {
+        this.bookRepository = bookRepository;
+        this.borrowingManager = borrowingManager;
+   }
  
    public static synchronized LibraryManager getInstance() {
        if (instance == null) {
@@ -13,13 +16,4 @@ public class LibraryManager {
        }
        return instance;
    }
- 
-   public void addBook(Book book) { books.add(book); }
- 
-   public void removeBook(Book book) { books.remove(book); }
- 
-   public void register(Subscriber s) { subscribers.add(s); }
-
- 
-   // Other utility methods
 }
