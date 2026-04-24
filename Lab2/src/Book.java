@@ -8,6 +8,7 @@ public abstract class Book {
    protected String bookID;
    protected boolean isRestricted;
    protected String series;
+   protected BorrowingPolicy borrowingPolicy;
  
    public Book(String title, String author, String category, String ISBN, String language,
                int publicationYear, String bookID, boolean isRestricted, String series) {
@@ -23,4 +24,5 @@ public abstract class Book {
    }
  
    // To DO Getters and setters
+   public BorrowingPolicy borrowingPolicy() { return borrowingPolicy; }
 }
