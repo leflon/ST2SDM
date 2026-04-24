@@ -1,12 +1,7 @@
 public class BorrowingManager implements IBorrowingManager {
-	private List<Borrowing> borrowings = new ArrayList<>();
-    private List<Reservation> reservations = new ArrayList<>();
+    private List<Borrowing> borrowings = new ArrayList<>();
 
-	public void reserveBook(Subscriber s, Book b) {
-		// Logic to reserve
-	}
-
-	public void borrowBook(Subscriber s, Book b) {
+    public void borrowBook(Subscriber s, Book b) {
         BorrowingPolicy policy = b.borrowingPolicy();
         if (!policy.canBorrow(s, b))
             return; // Or throw an exception
@@ -17,11 +12,11 @@ public class BorrowingManager implements IBorrowingManager {
         } else {
             // Handle case where borrowing fails
         }
-	}
+    }
 
-	public void returnBook(Borrowing b) {
+    public void returnBook(Borrowing b) {
         Book book = b.book();
         book.borrowingPolicy().returnBook(b.subscriber(), book);
         borrowings.remove(b);
-	}
+    }
 }
