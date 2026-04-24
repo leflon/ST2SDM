@@ -18,5 +18,8 @@ public class Subscriber {
        this.isSuspended = false;
    }
  
+   public int getBorrowedBooksCount() {
+       return borrowedBooks.size();
+   }
    // Getters and setters
 }

@@ -15,6 +15,13 @@ public class Borrowing {
        this.dueDate = dueDate;
        this.isRenewed = false;
    }
+
+   public boolean isOverdue() {
+         if (returnedDate != null) {
+              return returnedDate.after(dueDate);
+         }
+         return new Date().after(dueDate);
+   }
  
    // Getters and setters
 }
