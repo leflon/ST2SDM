@@ -1,4 +1,4 @@
-public class DigitalBook extends Book {
+public class DigitalBook extends Book implements Renewable {
    private int maxLicenses;
    private int availableLicenses;
  
@@ -10,6 +10,12 @@ public class DigitalBook extends Book {
        this.availableLicenses = availableLicenses;
        this.borrowingPolicy = borrowingPolicy;
    }
+
+   @Override
+    public void renew(Subscriber subscriber) {
+        // Implement renewal logic here
+        System.out.println("Renewing license for book for subscriber: " + subscriber.getName());
+    }
  
    // Getters and setters
     public int maxLicenses() { return maxLicenses; }

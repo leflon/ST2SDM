@@ -1,4 +1,4 @@
-public class PhysicalBook extends Book {
+public class PhysicalBook extends Book implements PenaltyApplicable, Reservable {
    private int copyCount;
    private int availableCopies;
  
@@ -9,6 +9,16 @@ public class PhysicalBook extends Book {
        this.copyCount = copyCount;
        this.availableCopies = availableCopies;
        this.borrowingPolicy = borrowingPolicy;
+   }
+
+   @Override
+   public calculatePenalty(int daysLate) {
+      return daysLate * 2.0; // Example penalty calculation: $2 per day late
+   }
+
+   @Override
+   public void reserve(Subscriber subscriber) {
+      // Implement reservation logic here
    }
  
    // Getters and setters
