@@ -1,11 +1,18 @@
 package library.service;
 
 import library.model.Borrowing;
+import library.strategy.IPenaltyStrategy;
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 public class PenaltyService implements IPenaltyService {
-    private static final double DAILY_PENALTY_RATE = 0.50;
+
+    private final IPenaltyStrategy strategy;
+
+    public PenaltyService(IPenaltyStrategy strategy) {
+        this.strategy = strategy;
+    }
 
     @Override
     public double calculatePenalty(Borrowing b) {
@@ -20,6 +27,6 @@ public class PenaltyService implements IPenaltyService {
             return 0.0;
         }
         long daysOverdue = ChronoUnit.DAYS.between(b.getDueDate(), today);
-        return daysOverdue * DAILY_PENALTY_RATE;
+        return strategy.calculate(b, daysOverdue);
     }
 }
