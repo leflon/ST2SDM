@@ -5,6 +5,8 @@ import library.model.Book;
 import library.model.Borrowing;
 import library.model.Reservation;
 import library.model.Subscriber;
+import library.observer.LibraryEvent;
+import library.observer.LibraryEventListener;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class BorrowingService implements IBorrowingService {
+    private final List<LibraryEventListener> listeners = new ArrayList<>();
     private List<Borrowing> borrowings = new ArrayList<>();
     private final IBookService bookService;
     private final ISubscriberService subscriberService;
@@ -22,6 +25,18 @@ public class BorrowingService implements IBorrowingService {
         this.bookService = bookService;
         this.subscriberService = subscriberService;
         this.borrowingFactory = borrowingFactory;
+    }
+
+    public void registerObserver(LibraryEventListener listener) {
+        listeners.add(listener);
+    }
+
+    public void unregisterObserver(LibraryEventListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyObservers(LibraryEvent event) {
+        listeners.forEach(l -> l.update(event));
     }
 
     @Override
@@ -52,6 +67,7 @@ public class BorrowingService implements IBorrowingService {
         }
         borrowing.getBook().returnBook();
         borrowing.setReturned(true);
+        notifyObservers(new LibraryEvent(LibraryEvent.Type.BOOK_RETURNED, borrowing.getBook()));
     }
 
     @Override
@@ -72,6 +88,7 @@ public class BorrowingService implements IBorrowingService {
         );
         // Reservations are stored internally; expose via getReservations() if needed
         reservations.add(reservation);
+        registerObserver(reservation);
     }
 
     @Override

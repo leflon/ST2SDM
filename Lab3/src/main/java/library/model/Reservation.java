@@ -1,8 +1,11 @@
 package library.model;
 
+import library.observer.LibraryEvent;
+import library.observer.LibraryEventListener;
+
 import java.time.LocalDate;
 
-public class Reservation {
+public class Reservation implements LibraryEventListener {
     private String id;
     private Subscriber subscriber;
     private Book book;
@@ -23,6 +26,15 @@ public class Reservation {
     public void setBook(Book book) { this.book = book; }
     public LocalDate getReservationDate() { return reservationDate; }
     public void setReservationDate(LocalDate reservationDate) { this.reservationDate = reservationDate; }
+
+    @Override
+    public void update(LibraryEvent event) {
+        if (event.getType() == LibraryEvent.Type.BOOK_RETURNED
+                && event.getBook().equals(this.book)) {
+            System.out.println("[Reservation] Book '" + book.getTitle()
+                    + "' is now available for subscriber '" + subscriber.getName() + "'");
+        }
+    }
 
     @Override
     public String toString() {
