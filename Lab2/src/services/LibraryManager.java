@@ -1,7 +1,6 @@
 public class LibraryManager {
    private static LibraryManager instance;
  
-   private List<Book> books = new ArrayList<>();
    private IBookRepository bookRepository;
    private IBorrowingManager borrowingManager;
  

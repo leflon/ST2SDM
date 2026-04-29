@@ -1,5 +1,6 @@
 package library.service;
 
+import library.factory.BorrowingFactory;
 import library.model.Book;
 import library.model.Borrowing;
 import library.model.Reservation;
@@ -12,12 +13,15 @@ import java.util.UUID;
 
 public class BorrowingService implements IBorrowingService {
     private List<Borrowing> borrowings = new ArrayList<>();
-    private IBookService bookService;
-    private ISubscriberService subscriberService;
+    private final IBookService bookService;
+    private final ISubscriberService subscriberService;
+    private final BorrowingFactory borrowingFactory;
 
-    public BorrowingService(IBookService bookService, ISubscriberService subscriberService) {
+    public BorrowingService(IBookService bookService, ISubscriberService subscriberService,
+                            BorrowingFactory borrowingFactory) {
         this.bookService = bookService;
         this.subscriberService = subscriberService;
+        this.borrowingFactory = borrowingFactory;
     }
 
     @Override
@@ -34,15 +38,7 @@ public class BorrowingService implements IBorrowingService {
             throw new IllegalStateException("Book is not available: " + bookId);
         }
         book.borrow();
-        Borrowing borrowing = new Borrowing(
-                UUID.randomUUID().toString(),
-                subscriber,
-                book,
-                LocalDate.now(),
-                LocalDate.now().plusDays(14),
-                false
-        );
-        borrowings.add(borrowing);
+        borrowings.add(borrowingFactory.createBorrowing(subscriber, book));
     }
 
     @Override
